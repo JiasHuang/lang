@@ -59,7 +59,7 @@ def outDB(out, key=None):
     if len(links):
         for link in links:
             print(link)
-            page.load(out, link)
+            page.page(out, link)
 
     return
 

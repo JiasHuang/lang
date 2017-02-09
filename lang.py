@@ -14,7 +14,7 @@ def index(req):
 
     p = arg.get('p', None)
 
-    page.load(req, p)
+    page.page(req, p)
 
     return
 
