@@ -20,8 +20,10 @@ def parseWord(req, txt):
     req.write('<br><br><hr><ul>')
     req.write('<font size=5>')
 
+    txt = re.sub('strong>', 'b>', txt)
+
     for m in re.finditer(r'<b>([^<]*)</b>', txt):
-        q = m.group(1)
+        q = m.group(1).rstrip(' ')
         q = q.replace('\n', '')
         q = q.replace('\r', '')
         q = q.replace(' ', '+')

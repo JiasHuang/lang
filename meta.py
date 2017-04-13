@@ -11,8 +11,10 @@ import time
 
 import conf
 
-def search(patten, txt):
-    m = re.search(patten, txt)
+def search(pattern, txt, flags=0):
+    if not txt:
+        return None
+    m = re.search(pattern, txt, flags)
     if m:
         return m.group(1)
     return None

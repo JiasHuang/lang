@@ -26,8 +26,8 @@ def addPage(req, link, title, image=None):
     addEntry(req, 'lang.py?p='+link, title, image)
     return
 
-def addVideo(req, src, mediatype):
-    req.write('<video width="1280" height="720" controls>\n')
+def addVideo(req, src, mediatype=None, width=1280, height=720):
+    req.write('<video width="%s" height="%s" controls>\n' %(width, height))
     req.write('<source src="%s" type="%s">\n' %(src, mediatype or 'video/mp4'))
     req.write('</video>\n')
     return
@@ -89,6 +89,25 @@ def page_goodtv(req, url):
         addVideo(req, m.group(1), m.group(2))
     return
 
+def page_newsinlevels(req, url):
+    txt = meta.load(url)
+    if re.search(r'/products/', url):
+        for m in re.finditer(r'<li ><a href="(.*?)">(.*?)</a>', txt):
+            link, title = m.group(1), m.group(2)
+            addPage(req, link, title)
+        iframe = meta.search(r'(<iframe .*?></iframe>)', txt)
+        if iframe and re.search('/embed/', iframe):
+            req.write(iframe)
+        content = meta.search(r'<div id="nContent">(.*?)</div>', txt, re.DOTALL|re.MULTILINE)
+        if content:
+            req.write(content)
+            esl.parseWord(req, content)
+    else:
+        for m in re.finditer(r'<h3><a href="(.*?)">(.*?)</a></h3>', txt, re.DOTALL|re.MULTILINE):
+            link, title = m.group(1), m.group(2)
+            addPage(req, link, title)
+    return
+
 def page(req, url):
 
     html = re.split('<!--result-->', loadFile('list.html'))
@@ -111,6 +130,9 @@ def page(req, url):
 
     elif re.search(r'goodtv', url):
         page_goodtv(req, url)
+
+    elif re.search(r'newsinlevels', url):
+        page_newsinlevels(req, url)
 
     req.write(html[1])
     return
