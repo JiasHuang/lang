@@ -14,7 +14,11 @@ def index(req):
 
     p = arg.get('p', None)
 
-    page.page(req, p)
+    if p:
+        page.page(req, p)
+
+    else:
+        req.write(page.loadFile('index.html'))
 
     return
 

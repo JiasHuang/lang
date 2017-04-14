@@ -25,11 +25,19 @@ def parseWord(req, txt):
 def genDB():
     return
 
-def getDB(key=None):
+def getDB(path=None, key=None):
+    files = []
     links = []
-    db = os.path.dirname(os.path.realpath(__file__)) + '/db/'
-    for f in os.listdir(db):
-        fd = open(db+f, 'r')
+
+    if path:
+        files.append(path)
+    else:
+        db = os.path.dirname(os.path.realpath(__file__)) + '/db/'
+        for f in os.listdir(db):
+            files.append(db+f)
+
+    for f in files:
+        fd = open(f, 'r')
         lines = fd.readlines()
         for l in lines:
             l = l.rstrip('\n')
@@ -57,7 +65,7 @@ def main():
         genDB()
     else:
         fd = open(out, "w")
-        for link in getDB(options.key):
+        for link in getDB(key=options.key):
             fd.write(link+'\n')
         fd.close()
 

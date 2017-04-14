@@ -44,7 +44,7 @@ function renderWord() {
         var target = $(this).attr('target');
         var href = $(this).attr('href');
         var word = $(this).attr('word');
-        text = '<li class="word">'+word+'<a target="'+target+'" href="'+href+'">['+target+']</a></li>';
+        text = '<li class="word"><a target="'+target+'" href="'+href+'">'+word+'</a></li>';
         $(this).html(text);
     });
 }

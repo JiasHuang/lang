@@ -31,10 +31,13 @@ def addAudio(req, url):
     req.write('<div class="div_audio" src="%s" type="%s"></div>\n' %(url, 'audio/mpeg'))
     return
 
+def addIFrame(req, url):
+    req.write('<iframe src="%s"></iframe>\n' %(url))
+    return
+
 def page_eslpod(req, url):
     txt = meta.load(url)
     if re.search(r'/podcast/', url):
-        req.write('<h1><a href="%s">%s</a></h1>\n' %(url, url))
         m = re.search(r'podcast-([0-9]*)', url)
         if m:
             audio = 'https://traffic.libsyn.com/preview/secure/eslpod/DE%s.mp3' %(m.group(1))
@@ -75,8 +78,9 @@ def page_mangareader(req, url):
             title = m.group(2)+m.group(3)
             addPage(req, link, title)
 
-def page_database(req):
-    for link in esl.getDB():
+def page_database(req, url):
+    path = os.path.dirname(os.path.realpath(__file__)) + url
+    for link in esl.getDB(path):
         addPage(req, link)
     return
 
@@ -92,9 +96,9 @@ def page_newsinlevels(req, url):
         for m in re.finditer(r'<li ><a href="(.*?)">(.*?)</a>', txt):
             link, title = m.group(1), m.group(2)
             addPage(req, link, title)
-        iframe = meta.search(r'(<iframe .*?></iframe>)', txt)
-        if iframe and re.search('/embed/', iframe):
-            req.write(iframe)
+        iframeSrc = meta.search(r'<iframe.*?src="(.*?)"', txt)
+        if iframeSrc:
+            addIFrame(req, iframeSrc)
         content = meta.search(r'<div id="nContent">(.*?)</div>', txt, re.DOTALL|re.MULTILINE)
         if content:
             req.write(content)
@@ -110,8 +114,8 @@ def page(req, url):
     html = re.split('<!--result-->', loadFile('list.html'))
     req.write(html[0])
 
-    if url == 'database':
-        page_database(req)
+    if re.search(r'^/db/', url):
+        page_database(req, url)
 
     elif re.search(r'eslpod', url):
         page_eslpod(req, url)
