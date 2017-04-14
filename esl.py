@@ -14,56 +14,33 @@ def loadWord(req, url):
     return parseWord(req, meta.load(url))
 
 def parseWord(req, txt):
-
     dictYahoo = 'https://tw.dictionary.yahoo.com/dictionary?p='
-
-    req.write('<br><br><hr><ul>')
-    req.write('<font size=5>')
-
     txt = re.sub('strong>', 'b>', txt)
-
     for m in re.finditer(r'<b>([^<]*)</b>', txt):
-        q = m.group(1).rstrip(' ')
-        q = q.replace('\n', '')
-        q = q.replace('\r', '')
+        q = m.group(1).rstrip('\s').rstrip(' ')
         q = q.replace(' ', '+')
-
-        s = '<li>%s' %(q)
-        s = s + '<a target="_yahoo" href=%s>[Yahoo]</a>' %(dictYahoo+q)
-        s = s + '\n'
-
-        req.write(s)
-
-    req.write('</ul><hr><br><br>')
-
+        req.write('<div class="div_word" target="%s" href="%s" word="%s"></div>\n' %('Yahoo', dictYahoo+q, q))
+    return
 
 def genDB():
     return
 
-def outDB(out, key=None):
-
+def getDB(key=None):
     links = []
     db = os.path.dirname(os.path.realpath(__file__)) + '/db/'
-
     for f in os.listdir(db):
         fd = open(db+f, 'r')
         lines = fd.readlines()
-        if key:
-            for l in lines:
+        for l in lines:
+            l = l.rstrip('\n')
+            if key:
                 if re.search(key, l):
                     links.append(l)
-        else:
-            rand = random.randint(1, len(lines))
-            link = lines[rand-1]
-            links.append(link)
+            else:
+                links.append(l)
         fd.close()
 
-    if len(links):
-        for link in links:
-            print(link)
-            page.page(out, link)
-
-    return
+    return links
 
 def main():
 
@@ -80,7 +57,8 @@ def main():
         genDB()
     else:
         fd = open(out, "w")
-        outDB(fd, options.key)
+        for link in getDB(options.key):
+            fd.write(link+'\n')
         fd.close()
 
     return

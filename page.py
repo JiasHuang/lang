@@ -3,6 +3,7 @@
 
 import re
 import os
+import urlparse
 
 import mangareader
 import esl
@@ -15,40 +16,32 @@ def loadFile(filename):
     return None
 
 def addEntry(req, link, title, image=None):
-    req.write('\n<a href="%s">\n' %(link))
-    req.write('<h2>%s</h2>\n' %(title))
-    if image:
-        req.write('<img src="%s" class="img" />\n' %(image))
-    req.write('</a>\n')
+    req.write('<div class="div_entry" link="%s" title="%s" image="%s"></div>\n' %(link, title or link, image or ''))
     return
 
-def addPage(req, link, title, image=None):
-    addEntry(req, 'lang.py?p='+link, title, image)
+def addPage(req, link, title=None, image=None):
+    addEntry(req, 'lang.py?p='+link, title or link, image)
     return
 
-def addVideo(req, src, mediatype=None, width=1280, height=720):
-    req.write('<video width="%s" height="%s" controls>\n' %(width, height))
-    req.write('<source src="%s" type="%s">\n' %(src, mediatype or 'video/mp4'))
-    req.write('</video>\n')
+def addVideo(req, src, mediatype=None):
+    req.write('<div class="div_video" src="%s" type="%s"></div>\n' %(src, mediatype or 'video/mp4'))
     return
 
 def addAudio(req, url):
-    req.write('<hr>\n')
-    req.write('<audio controls preload=none style="width:800px;"><source src="%s" type="audio/mpeg"></audio>\n' %(url))
-    req.write('<hr>\n')
+    req.write('<div class="div_audio" src="%s" type="%s"></div>\n' %(url, 'audio/mpeg'))
     return
 
 def page_eslpod(req, url):
     txt = meta.load(url)
     if re.search(r'/podcast/', url):
-        req.write('<h1><a href=%s>%s</a></h1>' %(url, url))
+        req.write('<h1><a href="%s">%s</a></h1>\n' %(url, url))
         m = re.search(r'podcast-([0-9]*)', url)
         if m:
             audio = 'https://traffic.libsyn.com/preview/secure/eslpod/DE%s.mp3' %(m.group(1))
             addAudio(req, audio)
         m = re.search(r'<div id="home" class="tab-pane fade in active">(.*?)</div>', txt, re.DOTALL|re.MULTILINE)
         if m:
-            req.write('<font size=5><p>%s</p></font>' %(m.group(1)))
+            req.write('<font size=5><p>%s</p></font>\n' %(m.group(1)))
             esl.parseWord(req, m.group(1))
     elif re.search(r'/library/', url):
         for m in re.finditer(r'<a href="([^"]*)">([^<]*)</a>', txt):
@@ -59,28 +52,32 @@ def page_eslpod(req, url):
 
 def page_dailyesl(req, url):
     txt = meta.load(url)
-    if url == 'http://www.dailyesl.com/':
+    if re.search(r'/$', url):
         for m in re.finditer(r'<a href="(.*?)">(.*?)</a>', txt):
             addPage(req, 'http://www.dailyesl.com/'+m.group(1), m.group(2))
         return
-    req.write('<h1><a href=%s>%s</a></h1>' %(url, url))
     for m in re.finditer(r'file: "([^"]*)"', txt):
         audio = 'http://www.dailyesl.com/'+m.group(1)
         addAudio(req, audio)
     for m in re.finditer(r'(</script>\n|</script>)</td></tr></table>(.*?)<p>', txt, re.DOTALL|re.MULTILINE):
-        req.write('<font size=5><p>%s</p></font>' %(m.group(2)))
+        req.write('<font size=5><p>%s</p></font>\n' %(m.group(2)))
         esl.parseWord(req, m.group(2))
     return
 
-def page_mangareader(req):
-    txt = meta.load('http://www.mangareader.net/one-piece')
-    for m in re.finditer(r'<a href="/one-piece/([^"]*)">([^"]*)</a>([^<]*)<', txt):
-        link = 'http://www.mangareader.net/one-piece/'+m.group(1)
-        title = m.group(2)+m.group(3)
-        addPage(req, link, title)
+def page_mangareader(req, url):
+    if re.search(r'/\d+$', url):
+        mangareader.loadImage(req, url)
+    else:
+        parsed_uri = urlparse.urlparse(url)
+        domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+        for m in re.finditer(r'<a href="(.*?/\d+)">(.*?)</a>(.*?)</(li|td)>', meta.load(url)):
+            link = meta.absURL(domain, m.group(1))
+            title = m.group(2)+m.group(3)
+            addPage(req, link, title)
 
 def page_database(req):
-    esl.outDB(req)
+    for link in esl.getDB():
+        addPage(req, link)
     return
 
 def page_goodtv(req, url):
@@ -113,10 +110,7 @@ def page(req, url):
     html = re.split('<!--result-->', loadFile('list.html'))
     req.write(html[0])
 
-    if url == 'mangareader':
-        page_mangareader(req)
-
-    elif url == 'database':
+    if url == 'database':
         page_database(req)
 
     elif re.search(r'eslpod', url):
@@ -126,7 +120,7 @@ def page(req, url):
         page_dailyesl(req, url)
 
     elif re.search(r'mangareader', url):
-        mangareader.loadImage(req, url)
+        page_mangareader(req, url)
 
     elif re.search(r'goodtv', url):
         page_goodtv(req, url)
