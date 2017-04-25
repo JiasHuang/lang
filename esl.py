@@ -14,12 +14,15 @@ def loadWord(req, url):
     return parseWord(req, meta.load(url))
 
 def parseWord(req, txt):
-    dictYahoo = 'https://tw.dictionary.yahoo.com/dictionary?p='
+    #dictName = 'Yahoo'
+    #dictPrefix = 'https://tw.dictionary.yahoo.com/dictionary?p='
+    dictName = 'Longman'
+    dictPrefix = 'http://www.ldoceonline.com/dictionary/'
     txt = re.sub('strong>', 'b>', txt)
     for m in re.finditer(r'<b>([^<]*)</b>', txt):
         q = m.group(1).rstrip('\s').rstrip(' ')
         q = q.replace(' ', '+')
-        req.write('<div class="div_word" target="%s" href="%s" word="%s"></div>\n' %('Yahoo', dictYahoo+q, q))
+        req.write('<div class="div_word" target="%s" href="%s" word="%s"></div>\n' %(dictName, dictPrefix+q, q))
     return
 
 def genDB():
