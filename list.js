@@ -1,6 +1,6 @@
 
 function renderEntry() {
-    $('.div_entry').each( function() {
+    $('.entry').each( function() {
         var link = $(this).attr('link');
         var title = $(this).attr('title');
         var image = $(this).attr('image');
@@ -15,7 +15,7 @@ function renderEntry() {
 }
 
 function renderVideo() {
-    $('.div_video').each( function() {
+    $('.video').each( function() {
         var src = $(this).attr('src');
         var type = $(this).attr('type');
         var text = '';
@@ -28,7 +28,7 @@ function renderVideo() {
 }
 
 function renderAudio() {
-    $('.div_audio').each( function() {
+    $('.audio').each( function() {
         var src = $(this).attr('src');
         var type = $(this).attr('type');
         var text = '';
@@ -40,13 +40,39 @@ function renderAudio() {
 }
 
 function renderWord() {
-    $('.div_word').each( function() {
-        var target = $(this).attr('target');
-        var href = $(this).attr('href');
-        var word = $(this).attr('word');
-        text = '<li class="word"><a target="'+target+'" href="'+href+'">'+word+'</a></li>';
-        $(this).html(text);
-    });
+    var text = '';
+    var words = $('.word').toArray();
+    for (var i in words) {
+        var target = $(words[i]).attr('target');
+        var href = $(words[i]).attr('href');
+        var word = $(words[i]).attr('word');
+        text += '<li class="word"><a target="'+target+'" href="'+href+'">'+word+'</a></li>';
+    }
+    $('#result_words').html(text);
+}
+
+function onKeyDown(e) {
+    if ($('audio').length > 0) {
+        switch (e.which) {
+            case 37: // left
+                $('audio').prop("currentTime",$("audio").prop("currentTime")-5);
+                e.preventDefault(); // prevent the default action
+                break;
+            case 39: // right
+                $('audio').prop("currentTime",$("audio").prop("currentTime")+5);
+                e.preventDefault(); // prevent the default action
+                break;
+            case 32: // space
+                if ($('audio').get(0).paused == false)
+                    $('audio').trigger('pause');
+                else
+                    $('audio').trigger('play');
+                e.preventDefault(); // prevent the default action
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 function onReady() {
@@ -54,4 +80,5 @@ function onReady() {
     renderVideo();
     renderAudio();
     renderWord();
+    $(document).keydown(onKeyDown);
 }

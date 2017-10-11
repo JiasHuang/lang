@@ -22,7 +22,7 @@ def parseWord(req, txt):
     for m in re.finditer(r'<b>([^<]*)</b>', txt):
         q = m.group(1).rstrip('\s').rstrip(' ')
         q = q.replace(' ', '+')
-        req.write('<div class="div_word" target="%s" href="%s" word="%s"></div>\n' %(dictName, dictPrefix+q, q))
+        req.write('<div class="word" target="%s" href="%s" word="%s"></div>\n' %(dictName, dictPrefix+q, q))
     return
 
 def genDB():

@@ -1,3 +1,19 @@
-.word {
-    font-size:24px;
+
+.audio {
+    margin: 16px;
+    text-align:center;
+}
+
+.paragraph {
+    font-size: 36px;
+    border: 2px solid white;
+    margin: 16px;
+    padding: 16px;
+    line-height: 150%;
+}
+
+.words {
+    font-size: 32px;
+    margin: 16px;
+    line-height: 150%;
 }

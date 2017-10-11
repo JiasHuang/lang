@@ -16,7 +16,7 @@ def loadFile(filename):
     return None
 
 def addEntry(req, link, title, image=None):
-    req.write('<div class="div_entry" link="%s" title="%s" image="%s"></div>\n' %(link, title or link, image or ''))
+    req.write('<div class="entry" link="%s" title="%s" image="%s"></div>\n' %(link, title or link, image or ''))
     return
 
 def addPage(req, link, title=None, image=None):
@@ -24,11 +24,11 @@ def addPage(req, link, title=None, image=None):
     return
 
 def addVideo(req, src, mediatype=None):
-    req.write('<div class="div_video" src="%s" type="%s"></div>\n' %(src, mediatype or 'video/mp4'))
+    req.write('<div class="video" src="%s" type="%s"></div>\n' %(src, mediatype or 'video/mp4'))
     return
 
 def addAudio(req, url):
-    req.write('<div class="div_audio" src="%s" type="%s"></div>\n' %(url, 'audio/mpeg'))
+    req.write('<div class="audio" src="%s" type="%s"></div>\n' %(url, 'audio/mpeg'))
     return
 
 def addIFrame(req, url):
@@ -44,7 +44,7 @@ def page_eslpod(req, url):
             addAudio(req, audio)
         m = re.search(r'<div id="home" class="tab-pane fade in active">(.*?)</div>', txt, re.DOTALL|re.MULTILINE)
         if m:
-            req.write('<font size=5><p>%s</p></font>\n' %(m.group(1)))
+            req.write('<p class="paragraph">%s</p>\n' %(m.group(1)))
             esl.parseWord(req, m.group(1))
     elif re.search(r'/library/', url):
         for m in re.finditer(r'<a href="([^"]*)">([^<]*)</a>', txt):
@@ -63,7 +63,7 @@ def page_dailyesl(req, url):
         audio = 'http://www.dailyesl.com/'+m.group(1)
         addAudio(req, audio)
     for m in re.finditer(r'(</script>\n|</script>)</td></tr></table>(.*?)<p>', txt, re.DOTALL|re.MULTILINE):
-        req.write('<font size=5><p>%s</p></font>\n' %(m.group(2)))
+        req.write('<p class="paragraph">%s</p>\n' %(m.group(2)))
         esl.parseWord(req, m.group(2))
     return
 
