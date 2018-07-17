@@ -109,6 +109,23 @@ def page_newsinlevels(req, url):
             addPage(req, link, title)
     return
 
+def page_bbc(req, url):
+    txt = meta.load(url)
+    if url.endswith('6-minute-english'):
+        for m in re.finditer(r'<h2><a\s+href="(.*?)">(.*?)</a></h2>', txt):
+            path, title = m.group(1), m.group(2)
+            addPage(req, 'http://www.bbc.co.uk'+path, title)
+    elif re.search(r'/6-minute-english/', url):
+        mp3 = meta.search(r'<a class="download bbcle-download-extension-mp3" href="(.*?)">', txt)
+        text = meta.search(r'<div class="text" dir="ltr">(.*?)</div>', txt, re.MULTILINE|re.DOTALL)
+        if mp3:
+          addAudio(req, mp3)
+        if text:
+          req.write('<div class="text">\n')
+          req.write('\n'+text+'\n')
+          req.write('</div>\n')
+    return
+
 def page(req, url):
 
     html = re.split('<!--result-->', loadFile('list.html'))
@@ -131,6 +148,9 @@ def page(req, url):
 
     elif re.search(r'newsinlevels', url):
         page_newsinlevels(req, url)
+
+    elif re.search(r'bbc', url):
+        page_bbc(req, url)
 
     req.write(html[1])
     return
