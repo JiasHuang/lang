@@ -6,7 +6,6 @@ import os
 import urlparse
 
 import mangareader
-import esl
 import meta
 
 def loadFile(filename):
@@ -35,38 +34,6 @@ def addIFrame(req, url):
     req.write('<iframe src="%s"></iframe>\n' %(url))
     return
 
-def page_eslpod(req, url):
-    txt = meta.load(url)
-    if re.search(r'/podcast/', url):
-        m = re.search(r'podcast-([0-9]*)', url)
-        if m:
-            audio = 'https://traffic.libsyn.com/preview/secure/eslpod/DE%s.mp3' %(m.group(1))
-            addAudio(req, audio)
-        m = re.search(r'<div id="home" class="tab-pane fade in active">(.*?)</div>', txt, re.DOTALL|re.MULTILINE)
-        if m:
-            req.write('<p class="paragraph">%s</p>\n' %(m.group(1)))
-            esl.parseWord(req, m.group(1))
-    elif re.search(r'/library/', url):
-        for m in re.finditer(r'<a href="([^"]*)">([^<]*)</a>', txt):
-            link, title = m.group(1), m.group(2)
-            if re.search(r'/podcast/', link):
-                addPage(req, link, title)
-    return
-
-def page_dailyesl(req, url):
-    txt = meta.load(url)
-    if re.search(r'/$', url):
-        for m in re.finditer(r'<a href="(.*?)">(.*?)</a>', txt):
-            addPage(req, 'http://www.dailyesl.com/'+m.group(1), m.group(2))
-        return
-    for m in re.finditer(r'file: "([^"]*)"', txt):
-        audio = 'http://www.dailyesl.com/'+m.group(1)
-        addAudio(req, audio)
-    for m in re.finditer(r'(</script>\n|</script>)</td></tr></table>(.*?)<p>', txt, re.DOTALL|re.MULTILINE):
-        req.write('<p class="paragraph">%s</p>\n' %(m.group(2)))
-        esl.parseWord(req, m.group(2))
-    return
-
 def page_mangareader(req, url):
     if re.search(r'/\d+$', url):
         mangareader.loadImage(req, url)
@@ -77,12 +44,6 @@ def page_mangareader(req, url):
             link = meta.absURL(domain, m.group(1))
             title = m.group(2)+m.group(3)
             addPage(req, link, title)
-
-def page_database(req, url):
-    path = os.path.dirname(os.path.realpath(__file__)) + url
-    for link in esl.getDB(path):
-        addPage(req, link)
-    return
 
 def page_goodtv(req, url):
     m = re.search(r'source src="([^"]*)" type="([^"]*)"', meta.load(url))
@@ -102,7 +63,6 @@ def page_newsinlevels(req, url):
         content = meta.search(r'<div id="nContent">(.*?)</div>', txt, re.DOTALL|re.MULTILINE)
         if content:
             req.write(content)
-            esl.parseWord(req, content)
     else:
         for m in re.finditer(r'<h3><a href="(.*?)">(.*?)</a></h3>', txt, re.DOTALL|re.MULTILINE):
             link, title = m.group(1), m.group(2)
@@ -131,16 +91,7 @@ def page(req, url):
     html = re.split('<!--result-->', loadFile('list.html'))
     req.write(html[0])
 
-    if re.search(r'^/db/', url):
-        page_database(req, url)
-
-    elif re.search(r'eslpod', url):
-        page_eslpod(req, url)
-
-    elif re.search(r'dailyesl', url):
-        page_dailyesl(req, url)
-
-    elif re.search(r'mangareader', url):
+    if re.search(r'mangareader', url):
         page_mangareader(req, url)
 
     elif re.search(r'goodtv', url):
