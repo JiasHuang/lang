@@ -17,6 +17,12 @@ function loadScript(url, callback) {
     document.getElementsByTagName("head")[0].appendChild(script);
 }
 
+function seekAudio(offset) {
+    var audio = document.getElementsByTagName("audio")[0];
+    audio.currentTime += offset;
+    audio.play();
+}
+
 function onDocumentReady()
 {
     var q = getURLVars()["q"];
@@ -25,7 +31,14 @@ function onDocumentReady()
         document.getElementById('result').innerHTML = '<pre>'+data+'</pre>';
     });
 
-    text = '<audio controls><source src="./db/'+q+'.mp3" type="audio/mpeg"></audio>\n';
+    text = '';
+    text += '<audio controls><source src="./db/'+q+'.mp3" type="audio/mpeg"></audio>\n';
+    text += '<br>'
+    text += '<button type="button" onclick="seekAudio(-60)">-60</button>\n';
+    text += '<button type="button" onclick="seekAudio(-15)">-15</button>\n';
+    text += '<button type="button" onclick="seekAudio(+15)">+15</button>\n';
+    text += '<button type="button" onclick="seekAudio(+60)">+60</button>\n';
+
     document.getElementById('audio').innerHTML = text;
 }
 
