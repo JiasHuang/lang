@@ -61,7 +61,7 @@ def makeDataJS(inputs, options):
             q = os.path.basename(i).split('.')[0]
             m = re.search(r'div class="desText">(.*?)</div>', readLocal(i), re.MULTILINE | re.DOTALL)
             desText = m.group(1)
-            local = '%s/%s.js' %(options, q)
+            local = '%s/%s.js' %(options.output, q)
             textJS = 'var data = `\n%s\n`;' %(desText)
             saveLocal(local, textJS)
         except:
