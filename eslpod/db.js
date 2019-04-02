@@ -23,6 +23,30 @@ function seekAudio(offset) {
     audio.play();
 }
 
+function pauseAudio() {
+    var audio = document.getElementsByTagName("audio")[0];
+    if (audio.paused) {
+        audio.play();
+    } else {
+        audio.pause();
+    }
+}
+
+function handleKeyDown(evt) {
+    evt.preventDefault();
+    if (evt.keyCode == 39) {
+        seekAudio(15);
+    } else if (evt.keyCode == 37) {
+        seekAudio(-15);
+    } else if (evt.keyCode == 38) {
+        seekAudio(60);
+    } else if (evt.keyCode == 40) {
+        seekAudio(-60);
+    } else if (evt.keyCode == 32) {
+        pauseAudio();
+    }
+}
+
 function onDocumentReady()
 {
     var q = getURLVars()["q"];
@@ -40,5 +64,6 @@ function onDocumentReady()
     text += '<button type="button" onclick="seekAudio(+60)">+60</button>\n';
 
     document.getElementById('audio').innerHTML = text;
+    document.addEventListener('keydown', handleKeyDown, false);
 }
 
