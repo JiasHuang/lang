@@ -6,6 +6,7 @@ import re
 import meta
 
 def loadImage(req, url):
+    req.write('<center>\n')
     for i in range(1, 30):
         txt = meta.load('%s/%d' %(url, i))
         m = re.search(r'<img id="img" .*?/>', txt)
@@ -15,4 +16,5 @@ def loadImage(req, url):
                 req.write('<li><img src=%s />\n' %(img.group(1)))
         else:
             break
+    req.write('</center>\n')
 
