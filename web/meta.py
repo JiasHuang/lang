@@ -40,14 +40,17 @@ def checkExpire(local):
 def dict2str(adict):
     return ''.join('{}{}'.format(key, val) for key, val in adict.items())
 
-def load(url, local=None, headers=None, cache=True):
+def load(url, local=None, headers=None, cache=True, mobile=False):
 
     local = local or conf.workdir+'vod_load_'+hashlib.md5(url).hexdigest()
     if cache and os.path.exists(local) and not checkExpire(local):
         return readLocal(local)
 
     opener = urllib2.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/33.0')]
+    if mobile:
+        opener.addheaders = [('User-agent', 'Mozilla/5.0 (Android 7.0; Mobile; rv:54.0) Gecko/54.0 Firefox/54.0')]
+    else:
+        opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/33.0')]
 
     if headers:
         opener.addheaders += headers

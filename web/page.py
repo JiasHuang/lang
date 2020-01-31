@@ -86,6 +86,13 @@ def page_bbc(req, url):
           req.write('</div>\n')
     return
 
+def page_default(req, url):
+    req.write('<center>\n')
+    txt = meta.load(url, mobile=True)
+    for m in re.finditer(r'"([^"]*\.jpg)"', txt):
+        req.write('<li><img src=%s />\n' %(m.group(1)))
+    req.write('</center>\n')
+
 def page(req, url):
 
     html = re.split('<!--result-->', loadFile('list.html'))
@@ -102,6 +109,9 @@ def page(req, url):
 
     elif re.search(r'bbc', url):
         page_bbc(req, url)
+
+    else:
+        page_default(req, url)
 
     req.write(html[1])
     return
