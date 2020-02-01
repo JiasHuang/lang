@@ -90,7 +90,7 @@ def page_default(req, url):
     req.write('<center>\n')
     txt = meta.load(url, mobile=True)
     for m in re.finditer(r'"([^"]*\.jpg)"', txt):
-        req.write('<li><img src=%s />\n' %(m.group(1)))
+        req.write('<p><img src="%s" /></p>\n' %(m.group(1)))
     req.write('</center>\n')
 
 def page(req, url):

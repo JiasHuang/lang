@@ -13,7 +13,7 @@ def loadImage(req, url):
         if m:
             img = re.search(r'src="([^"]*)"', m.group())
             if img:
-                req.write('<li><img src=%s />\n' %(img.group(1)))
+                req.write('<p><img src="%s" /></p>\n' %(img.group(1)))
         else:
             break
     req.write('</center>\n')
