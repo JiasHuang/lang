@@ -89,8 +89,12 @@ def page_bbc(req, url):
 def page_default(req, url):
     req.write('<center>\n')
     txt = meta.load(url, mobile=True)
+    pics = []
     for m in re.finditer(r'"([^"]*\.jpg)"', txt):
-        req.write('<p><img src="%s" /></p>\n' %(m.group(1)))
+        pic = m.group(1)
+        if pic not in pics:
+            req.write('<p><img src="%s" /></p>\n' %(pic))
+            pics.append(pic)
     req.write('</center>\n')
 
 def page(req, url):
